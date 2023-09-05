@@ -2,7 +2,13 @@ import subprocess
 import time
 import platform
 import os
+import argparse
+import signal
 from datetime import datetime
+
+def handler(signum, frame):
+    print("Zatrzymanie pingowania")
+    exit(0)
 
 def get_os_type():
     os_name = platform.system()
@@ -57,7 +63,18 @@ def ping_and_log(server_ip, save_directory):
         # Czekaj sekundę przed następnym pingiem
         time.sleep(1)
 
+signal.signal(signal.SIGINT, handler)
+
 if __name__ == "__main__":
-    SERVER_IP = "139.59.147.201"  # Na przykład Google DNS; możesz zmienić na inny adres IP
-    SAVE_DIRECTORY = "pings"
-    ping_and_log(SERVER_IP, SAVE_DIRECTORY)
+    parser = argparse.ArgumentParser(description="Skrypt zbierający pakiety pod danym adresem IP")
+    parser.add_argument("--address", type=str, required=True, help="IP address")
+    parser.add_argument("--logPath", type=str, required=True, help="Logs location")
+    
+    args = parser.parse_args()
+    
+    # SERVER_IP = "139.59.147.201"  # Na przykład Google DNS; możesz zmienić na inny adres IP
+    # SAVE_DIRECTORY = "pings"
+    
+    print("Rozpoczęcie pingowania adresu:", args.address, "... Naciśnij Ctrl+C, aby zakończyć.")
+    
+    ping_and_log(args.address, args.logPath)
